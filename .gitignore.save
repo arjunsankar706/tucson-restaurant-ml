@@ -1,0 +1,5 @@
+nano .gitignore
+e/
+*.json
+.DS_Store
+

@@ -1,0 +1,1739 @@
+import json
+import pandas as pd
+
+# Load Yelp business data
+rows = []
+with open("data/yelp_academic_dataset_business.json", "r") as f:
+    for line in f:
+        rows.append(json.loads(line))
+
+df = pd.DataFrame(rows)
+
+# Filter Tucson restaurants
+tucson = df[df["city"] == "Tucson"]
+tucson_restaurants = tucson[
+    tucson["categories"].str.contains("Restaurant", case=False, na=False)
+]
+
+# Keep restaurants with hours
+tucson_with_hours = tucson_restaurants[tucson_restaurants["hours"].notna()].copy()
+
+def avg_daily_hours(hours):
+    if not isinstance(hours, dict):
+        return None
+
+    total = 0
+    count = 0
+
+    for _, time_range in hours.items():
+        try:
+            open_t, close_t = time_range.split("-")
+            open_h = int(open_t.split(":")[0])
+            close_h = int(close_t.split(":")[0])
+
+            if close_h < open_h:
+                close_h += 24
+
+            total += max(close_h - open_h, 0)
+            count += 1
+        except:
+            continue
+
+    return total / count if count > 0 else None
+
+tucson_with_hours["avg_daily_hours"] = tucson_with_hours["hours"].apply(avg_daily_hours)
+
+print(tucson_with_hours[["name", "avg_daily_hours"]].dropna().head(10))
+Control + O
+Enter
+Control + X
+
+python analysis.py
+nano analysis.py
+import json
+import pandas as pd
+
+# -----------------------
+# Load Yelp business data
+# -----------------------
+rows = []
+with open("data/yelp_academic_dataset_business.json", "r") as f:
+    for line in f:
+        rows.append(json.loads(line))
+
+df = pd.DataFrame(rows)
+
+print("Total businesses:", df.shape)
+
+# -----------------------
+# Filter Tucson restaurants
+# -----------------------
+city = "Tucson"
+
+tucson = df[df["city"] == city]
+tucson_restaurants = tucson[
+    tucson["categories"].str.contains("Restaurant", case=False, na=False)
+]
+
+print("Tucson businesses:", tucson.shape)
+print("Tucson restaurants:", tucson_restaurants.shape)
+
+# -----------------------
+# Keep only restaurants with hours
+# -----------------------
+tucson_with_hours = tucson_restaurants[
+    tucson_restaurants["hours"].notna()
+].copy()
+
+print("Restaurants with hours:", tucson_with_hours.shape)
+
+# -----------------------
+# Feature engineering
+# -----------------------
+def avg_daily_hours(hours):
+    if not isinstance(hours, dict):
+        return None
+
+    total = 0
+    count = 0
+
+    for _, time_range in hours.items():
+        try:
+            open_t, close_t = time_range.split("-")
+            open_h = int(open_t.split(":")[0])
+            close_h = int(close_t.split(":")[0])
+
+            # Handle overnight hours
+            if close_h < open_h:
+                close_h += 24
+
+            total += max(close_h - open_h, 0)
+            count += 1
+        except:
+            continue
+
+    return total / count if count > 0 else None
+
+tucson_with_hours.loc[:, "avg_daily_hours"] = (
+    tucson_with_hours["hours"].apply(avg_daily_hours)
+)
+
+# -----------------------
+# Show results
+# -----------------------
+print(
+    tucson_with_hours[["name", "avg_daily_hours"]]
+    .dropna()
+    .sort_values("avg_daily_hours", ascending=False)
+    .head(10)
+)
+import json
+import pandas as pd
+
+# -----------------------
+# Load Yelp business data
+# -----------------------
+rows = []
+with open("data/yelp_academic_dataset_business.json", "r") as f:
+    for line in f:
+        rows.append(json.loads(line))
+
+df = pd.DataFrame(rows)
+
+print("Total businesses:", df.shape)
+
+# -----------------------
+# Filter Tucson restaurants
+# -----------------------
+city = "Tucson"
+
+tucson = df[df["city"] == city]
+tucson_restaurants = tucson[
+    tucson["categories"].str.contains("Restaurant", case=False, na=False)
+]
+
+print("Tucson businesses:", tucson.shape)
+print("Tucson restaurants:", tucson_restaurants.shape)
+
+# -----------------------
+# Keep only restaurants with hours
+# -----------------------
+tucson_with_hours = tucson_restaurants[
+    tucson_restaurants["hours"].notna()
+].copy()
+
+print("Restaurants with hours:", tucson_with_hours.shape)
+
+# -----------------------
+# Feature engineering
+# -----------------------
+def avg_daily_hours(hours):
+    if not isinstance(hours, dict):
+        return None
+
+    total = 0
+    count = 0
+
+    for _, time_range in hours.items():
+        try:
+            open_t, close_t = time_range.split("-")
+            open_h = int(open_t.split(":")[0])
+            close_h = int(close_t.split(":")[0])
+
+            # Handle overnight hours
+            if close_h < open_h:
+                close_h += 24
+
+            total += max(close_h - open_h, 0)
+            count += 1
+        except:
+            continue
+
+    return total / count if count > 0 else None
+
+tucson_with_hours.loc[:, "avg_daily_hours"] = (
+    tucson_with_hours["hours"].apply(avg_daily_hours)
+)
+
+# -----------------------
+# Show results
+# -----------------------
+print(
+    tucson_with_hours[["name", "avg_daily_hours"]]
+    .dropna()
+    .sort_values("avg_daily_hours", ascending=False)
+    .head(10)
+)
+import json
+import pandas as pd
+
+# -----------------------
+# Load Yelp business data
+# -----------------------
+rows = []
+with open("data/yelp_academic_dataset_business.json", "r") as f:
+    for line in f:
+        rows.append(json.loads(line))
+
+df = pd.DataFrame(rows)
+
+print("Total businesses:", df.shape)
+
+# -----------------------
+# Filter Tucson restaurants
+# -----------------------
+city = "Tucson"
+
+tucson = df[df["city"] == city]
+tucson_restaurants = tucson[
+    tucson["categories"].str.contains("Restaurant", case=False, na=False)
+]
+
+print("Tucson businesses:", tucson.shape)
+print("Tucson restaurants:", tucson_restaurants.shape)
+
+# -----------------------
+# Keep only restaurants with hours
+# -----------------------
+tucson_with_hours = tucson_restaurants[
+    tucson_restaurants["hours"].notna()
+].copy()
+
+print("Restaurants with hours:", tucson_with_hours.shape)
+
+# -----------------------
+# Feature engineering
+# -----------------------
+def avg_daily_hours(hours):
+    if not isinstance(hours, dict):
+        return None
+
+    total = 0
+    count = 0
+
+    for _, time_range in hours.items():
+        try:
+            open_t, close_t = time_range.split("-")
+            open_h = int(open_t.split(":")[0])
+            close_h = int(close_t.split(":")[0])
+
+            # Handle overnight hours
+            if close_h < open_h:
+                close_h += 24
+
+            total += max(close_h - open_h, 0)
+            count += 1
+        except:
+            continue
+
+    return total / count if count > 0 else None
+
+tucson_with_hours.loc[:, "avg_daily_hours"] = (
+    tucson_with_hours["hours"].apply(avg_daily_hours)
+)
+
+# -----------------------
+# Show results
+# -----------------------
+print(
+    tucson_with_hours[["name", "avg_daily_hours"]]
+    .dropna()
+    .sort_values("avg_daily_hours", ascending=False)
+    .head(10)
+)
+nano analysis.py
+
+import json
+import pandas as pd
+
+# -----------------------------
+# Load Yelp business data
+# -----------------------------
+rows = []
+
+with open("data/yelp_academic_dataset_business.json", "r") as f:
+    for line in f:
+        rows.append(json.loads(line))
+
+df = pd.DataFrame(rows)
+
+print("Total businesses:", df.shape)
+
+# -----------------------------
+# Filter Tucson restaurants
+# -----------------------------
+tucson = df[df["city"] == "Tucson"]
+tucson_restaurants = tucson[
+    tucson["categories"].str.contains("Restaurant", case=False, na=False)
+]
+
+print("Tucson businesses:", tucson.shape)
+print("Tucson restaurants:", tucson_restaurants.shape)
+
+# -----------------------------
+# Keep only restaurants with hours
+# -----------------------------
+tucson_with_hours = tucson_restaurants[
+    tucson_restaurants["hours"].notna()
+].copy()
+
+print("Restaurants with hours:", tucson_with_hours.shape)
+
+# -----------------------------
+# Feature engineering
+# Average daily open hours
+# -----------------------------
+def avg_daily_hours(hours):
+    if not isinstance(hours, dict):
+        return None
+
+    total = 0
+    count = 0
+
+    for _, time_range in hours.items():
+        try:
+            open_t, close_t = time_range.split("-")
+            open_h = int(open_t.split(":")[0])
+            close_h = int(close_t.split(":")[0])
+
+            # Handle overnight hours (e.g. 18:00-02:00)
+            if close_h < open_h:
+                close_h += 24
+
+            total += max(close_h - open_h, 0)
+            count += 1
+        except:
+            continue
+
+    return total / count if count > 0 else None
+
+
+tucson_with_hours.loc[:, "avg_daily_hours"] = (
+    tucson_with_hours["hours"].apply(avg_daily_hours)
+)
+
+# -----------------------------
+# Results
+# -----------------------------
+top = (
+    tucson_with_hours[["name", "avg_daily_hours", "stars", "review_count"]]
+    .dropna()
+    .sort_values("avg_daily_hours", ascending=False)
+    .head(10)
+)
+
+print("\nTop Tucson Restaurants by Avg Daily Open Hours:\n")
+print(top)
+import json
+import pandas as pd
+
+# -----------------------------
+# Load Yelp business data
+# -----------------------------
+rows = []
+
+with open("data/yelp_academic_dataset_business.json", "r") as f:
+    for line in f:
+        rows.append(json.loads(line))
+
+df = pd.DataFrame(rows)
+
+print("Total businesses:", df.shape)
+
+# -----------------------------
+# Filter Tucson restaurants
+# -----------------------------
+tucson = df[df["city"] == "Tucson"]
+tucson_restaurants = tucson[
+    tucson["categories"].str.contains("Restaurant", case=False, na=False)
+]
+
+print("Tucson businesses:", tucson.shape)
+print("Tucson restaurants:", tucson_restaurants.shape)
+
+# -----------------------------
+# Keep only restaurants with hours
+# -----------------------------
+tucson_with_hours = tucson_restaurants[
+    tucson_restaurants["hours"].notna()
+].copy()
+
+print("Restaurants with hours:", tucson_with_hours.shape)
+
+# -----------------------------
+# Feature engineering
+# Average daily open hours
+# -----------------------------
+def avg_daily_hours(hours):
+    if not isinstance(hours, dict):
+        return None
+
+    total = 0
+    count = 0
+
+    for _, time_range in hours.items():
+        try:
+            open_t, close_t = time_range.split("-")
+            open_h = int(open_t.split(":")[0])
+            close_h = int(close_t.split(":")[0])
+
+            # Handle overnight hours (e.g. 18:00-02:00)
+            if close_h < open_h:
+                close_h += 24
+
+            total += max(close_h - open_h, 0)
+            count += 1
+        except:
+            continue
+
+    return total / count if count > 0 else None
+
+
+tucson_with_hours.loc[:, "avg_daily_hours"] = (
+    tucson_with_hours["hours"].apply(avg_daily_hours)
+)
+
+# -----------------------------
+# Results
+# -----------------------------
+top = (
+    tucson_with_hours[["name", "avg_daily_hours", "stars", "review_count"]]
+    .dropna()
+    .sort_values("avg_daily_hours", ascending=False)
+    .head(10)
+)
+
+print("\nTop Tucson Restaurants by Avg Daily Open Hours:\n")
+print(top)
+import json
+import pandas as pd
+
+# -----------------------------
+# Load Yelp business data
+# -----------------------------
+rows = []
+
+with open("data/yelp_academic_dataset_business.json", "r") as f:
+    for line in f:
+        rows.append(json.loads(line))
+
+df = pd.DataFrame(rows)
+
+print("Total businesses:", df.shape)
+
+# -----------------------------
+# Filter Tucson restaurants
+# -----------------------------
+tucson = df[df["city"] == "Tucson"]
+tucson_restaurants = tucson[
+    tucson["categories"].str.contains("Restaurant", case=False, na=False)
+]
+
+print("Tucson businesses:", tucson.shape)
+print("Tucson restaurants:", tucson_restaurants.shape)
+
+# -----------------------------
+# Keep only restaurants with hours
+# -----------------------------
+tucson_with_hours = tucson_restaurants[
+    tucson_restaurants["hours"].notna()
+].copy()
+
+print("Restaurants with hours:", tucson_with_hours.shape)
+
+# -----------------------------
+# Feature engineering
+# Average daily open hours
+# -----------------------------
+def avg_daily_hours(hours):
+    if not isinstance(hours, dict):
+        return None
+
+    total = 0
+    count = 0
+
+    for _, time_range in hours.items():
+        try:
+            open_t, close_t = time_range.split("-")
+            open_h = int(open_t.split(":")[0])
+            close_h = int(close_t.split(":")[0])
+
+            # Handle overnight hours (e.g. 18:00-02:00)
+            if close_h < open_h:
+                close_h += 24
+
+            total += max(close_h - open_h, 0)
+            count += 1
+        except:
+            continue
+
+    return total / count if count > 0 else None
+
+
+tucson_with_hours.loc[:, "avg_daily_hours"] = (
+    tucson_with_hours["hours"].apply(avg_daily_hours)
+)
+
+# -----------------------------
+# Results
+# -----------------------------
+top = (
+    tucson_with_hours[["name", "avg_daily_hours", "stars", "review_count"]]
+    .dropna()
+    .sort_values("avg_daily_hours", ascending=False)
+    .head(10)
+)
+
+print("\nTop Tucson Restaurants by Avg Daily Open Hours:\n")
+print(top)
+import import json
+import pandas as pd
+
+# -----------------------------
+# Load Yelp business data
+# -----------------------------
+rows = []
+
+with open("data/yelp_academic_dataset_business.json", "r") as f:
+    for line in f:
+        rows.append(json.loads(line))
+
+df = pd.DataFrame(rows)
+
+print("Total businesses:", df.shape)
+
+# -----------------------------
+# Filter Tucson restaurants
+# -----------------------------
+tucson = df[df["city"] == "Tucson"]
+tucson_restaurants = tucson[
+    tucson["categories"].str.contains("Restaurant", case=False, na=False)
+]
+
+print("Tucson businesses:", tucson.shape)
+print("Tucson restaurants:", tucson_restaurants.shape)
+
+# -----------------------------
+# Keep only restaurants with hours
+# -----------------------------
+tucson_with_hours = tucson_restaurants[
+    tucson_restaurants["hours"].notna()
+].copy()
+
+print("Restaurants with hours:", tucson_with_hours.shape)
+
+# -----------------------------
+# Feature engineering
+# Average daily open hours
+# -----------------------------
+def avg_daily_hours(hours):
+    if not isinstance(hours, dict):
+        return None
+
+    total = 0
+    count = 0
+
+    for _, time_range in hours.items():
+        try:
+            open_t, close_t = time_range.split("-")
+            open_h = int(open_t.split(":")[0])
+            close_h = int(close_t.split(":")[0])
+
+            # Handle overnight hours (e.g. 18:00-02:00)
+            if close_h < open_h:
+                close_h += 24
+
+            total += max(close_h - open_h, 0)
+            count += 1
+        except:
+            continue
+
+    return total / count if count > 0 else None
+
+
+tucson_with_hours.loc[:, "avg_daily_hours"] = (
+    tucson_with_hours["hours"].apply(avg_daily_hours)
+)
+
+# -----------------------------
+# Results
+# -----------------------------
+top = (
+    tucson_with_hours[["name", "avg_daily_hours", "stars", "review_count"]]
+    .dropna()
+    .sort_values("avg_daily_hours", ascending=False)
+    .head(10)
+)
+
+print("\nTop Tucson Restaurants by Avg Daily Open Hours:\n")
+print(top)
+import json
+import pandas as pd
+
+# -----------------------------
+# Load Yelp business data
+# -----------------------------
+rows = []
+
+with open("data/yelp_academic_dataset_business.json", "r") as f:
+    for line in f:
+        rows.append(json.loads(line))
+
+df = pd.DataFrame(rows)
+
+print("Total businesses:", df.shape)
+
+# -----------------------------
+# Filter Tucson restaurants
+# -----------------------------
+tucson = df[df["city"] == "Tucson"]
+tucson_restaurants = tucson[
+    tucson["categories"].str.contains("Restaurant", case=False, na=False)
+]
+
+print("Tucson businesses:", tucson.shape)
+print("Tucson restaurants:", tucson_restaurants.shape)
+
+# -----------------------------
+# Keep only restaurants with hours
+# -----------------------------
+tucson_with_hours = tucson_restaurants[
+    tucson_restaurants["hours"].notna()
+].copy()
+
+print("Restaurants with hours:", tucson_with_hours.shape)
+
+# -----------------------------
+# Feature engineering
+# Average daily open hours
+# -----------------------------
+def avg_daily_hours(hours):
+    if not isinstance(hours, dict):
+        return None
+
+    total = 0
+    count = 0
+
+    for _, time_range in hours.items():
+        try:
+            open_t, close_t = time_range.split("-")
+            open_h = int(open_t.split(":")[0])
+            close_h = int(close_t.split(":")[0])
+
+            # Handle overnight hours (e.g. 18:00-02:00)
+            if close_h < open_h:
+                close_h += 24
+
+            total += max(close_h - open_h, 0)
+            count += 1
+        except:
+            continue
+
+    return total / count if count > 0 else None
+
+
+tucson_with_hours.loc[:, "avg_daily_hours"] = (
+    tucson_with_hours["hours"].apply(avg_daily_hours)
+)
+
+# -----------------------------
+# Results
+# -----------------------------
+top = (
+    tucson_with_hours[["name", "avg_daily_hours", "stars", "review_count"]]
+    .dropna()
+    .sort_values("avg_daily_hours", ascending=False)
+    .head(10)
+)
+
+print("\nTop Tucson Restaurants by Avg Daily Open Hours:\n")
+print(top)
+import json
+import pandas as pd
+
+# -----------------------------
+# Load Yelp business data
+# -----------------------------
+rows = []
+
+with open("data/yelp_academic_dataset_business.json", "r") as f:
+    for line in f:
+        rows.append(json.loads(line))
+
+df = pd.DataFrame(rows)
+
+print("Total businesses:", df.shape)
+
+# -----------------------------
+# Filter Tucson restaurants
+# -----------------------------
+tucson = df[df["city"] == "Tucson"]
+tucson_restaurants = tucson[
+    tucson["categories"].str.contains("Restaurant", case=False, na=False)
+]
+
+print("Tucson businesses:", tucson.shape)
+print("Tucson restaurants:", tucson_restaurants.shape)
+
+# -----------------------------
+# Keep only restaurants with hours
+# -----------------------------
+tucson_with_hours = tucson_restaurants[
+    tucson_restaurants["hours"].notna()
+].copy()
+
+print("Restaurants with hours:", tucson_with_hours.shape)
+
+# -----------------------------
+# Feature engineering
+# Average daily open hours
+# -----------------------------
+def avg_daily_hours(hours):
+    if not isinstance(hours, dict):
+        return None
+
+    total = 0
+    count = 0
+
+    for _, time_range in hours.items():
+        try:
+            open_t, close_t = time_range.split("-")
+            open_h = int(open_t.split(":")[0])
+            close_h = int(close_t.split(":")[0])
+
+            # Handle overnight hours (e.g. 18:00-02:00)
+            if close_h < open_h:
+                close_h += 24
+
+            total += max(close_h - open_h, 0)
+            count += 1
+        except:
+            continue
+
+    return total / count if count > 0 else None
+
+
+tucson_with_hours.loc[:, "avg_daily_hours"] = (
+    tucson_with_hours["hours"].apply(avg_daily_hours)
+)
+
+# -----------------------------
+# Results
+# -----------------------------
+top = (
+    tucson_with_hours[["name", "avg_daily_hours", "stars", "review_count"]]
+    .dropna()
+    .sort_values("avg_daily_hours", ascending=False)
+    .head(10)
+)
+
+print("\nTop Tucson Restaurants by Avg Daily Open Hours:\n")
+print(top)
+import json
+import pandas as pd
+
+# -----------------------------
+# Load Yelp business data
+# -----------------------------
+rows = []
+
+with open("data/yelp_academic_dataset_business.json", "r") as f:
+    for line in f:
+        rows.append(json.loads(line))
+
+df = pd.DataFrame(rows)
+
+print("Total businesses:", df.shape)
+
+# -----------------------------
+# Filter Tucson restaurants
+# -----------------------------
+tucson = df[df["city"] == "Tucson"]
+tucson_restaurants = tucson[
+    tucson["categories"].str.contains("Restaurant", case=False, na=False)
+]
+
+print("Tucson businesses:", tucson.shape)
+print("Tucson restaurants:", tucson_restaurants.shape)
+
+# -----------------------------
+# Keep only restaurants with hours
+# -----------------------------
+tucson_with_hours = tucson_restaurants[
+    tucson_restaurants["hours"].notna()
+].copy()
+
+print("Restaurants with hours:", tucson_with_hours.shape)
+
+# -----------------------------
+# Feature engineering
+# Average daily open hours
+# -----------------------------
+def avg_daily_hours(hours):
+    if not isinstance(hours, dict):
+        return None
+
+    total = 0
+    count = 0
+
+    for _, time_range in hours.items():
+        try:
+            open_t, close_t = time_range.split("-")
+            open_h = int(open_t.split(":")[0])
+            close_h = int(close_t.split(":")[0])
+
+            # Handle overnight hours (e.g. 18:00-02:00)
+            if close_h < open_h:
+                close_h += 24
+
+            total += max(close_h - open_h, 0)
+            count += 1
+        except:
+            continue
+
+    return total / count if count > 0 else None
+
+
+tucson_with_hours.loc[:, "avg_daily_hours"] = (
+    tucson_with_hours["hours"].apply(avg_daily_hours)
+)
+
+# -----------------------------
+# Results
+# -----------------------------
+top = (
+    tucson_with_hours[["name", "avg_daily_hours", "stars", "review_count"]]
+    .dropna()
+    .sort_values("avg_daily_hours", ascending=False)
+    .head(10)
+)
+
+print("\nTop Tucson Restaurants by Avg Daily Open Hours:\n")
+print(top)
+import json
+import pandas as pd
+
+# -----------------------------
+# Load Yelp business data
+# -----------------------------
+rows = []
+
+with open("data/yelp_academic_dataset_business.json", "r") as f:
+    for line in f:
+        rows.append(json.loads(line))
+
+df = pd.DataFrame(rows)
+
+print("Total businesses:", df.shape)
+
+# -----------------------------
+# Filter Tucson restaurants
+# -----------------------------
+tucson = df[df["city"] == "Tucson"]
+tucson_restaurants = tucson[
+    tucson["categories"].str.contains("Restaurant", case=False, na=False)
+]
+
+print("Tucson businesses:", tucson.shape)
+print("Tucson restaurants:", tucson_restaurants.shape)
+
+# -----------------------------
+# Keep only restaurants with hours
+# -----------------------------
+tucson_with_hours = tucson_restaurants[
+    tucson_restaurants["hours"].notna()
+].copy()
+
+print("Restaurants with hours:", tucson_with_hours.shape)
+
+# -----------------------------
+# Feature engineering
+# Average daily open hours
+# -----------------------------
+def avg_daily_hours(hours):
+    if not isinstance(hours, dict):
+        return None
+
+    total = 0
+    count = 0
+
+    for _, time_range in hours.items():
+        try:
+            open_t, close_t = time_range.split("-")
+            open_h = int(open_t.split(":")[0])
+            close_h = int(close_t.split(":")[0])
+
+            # Handle overnight hours (e.g. 18:00-02:00)
+            if close_h < open_h:
+                close_h += 24
+
+            total += max(close_h - open_h, 0)
+            count += 1
+        except:
+            continue
+
+    return total / count if count > 0 else None
+
+
+tucson_with_hours.loc[:, "avg_daily_hours"] = (
+    tucson_with_hours["hours"].apply(avg_daily_hours)
+)
+
+# -----------------------------
+# Results
+# -----------------------------
+top = (
+    tucson_with_hours[["name", "avg_daily_hours", "stars", "review_count"]]
+    .dropna()
+    .sort_values("avg_daily_hours", ascending=False)
+    .head(10)
+)
+
+print("\nTop Tucson Restaurants by Avg Daily Open Hours:\n")
+print(top)
+import json
+import pandas as pd
+
+# -----------------------------
+# Load Yelp business data
+# -----------------------------
+rows = []
+
+with open("data/yelp_academic_dataset_business.json", "r") as f:
+    for line in f:
+        rows.append(json.loads(line))
+
+df = pd.DataFrame(rows)
+
+print("Total businesses:", df.shape)
+
+# -----------------------------
+# Filter Tucson restaurants
+# -----------------------------
+tucson = df[df["city"] == "Tucson"]
+tucson_restaurants = tucson[
+    tucson["categories"].str.contains("Restaurant", case=False, na=False)
+]
+
+print("Tucson businesses:", tucson.shape)
+print("Tucson restaurants:", tucson_restaurants.shape)
+
+# -----------------------------
+# Keep only restaurants with hours
+# -----------------------------
+tucson_with_hours = tucson_restaurants[
+    tucson_restaurants["hours"].notna()
+].copy()
+
+print("Restaurants with hours:", tucson_with_hours.shape)
+
+# -----------------------------
+# Feature engineering
+# Average daily open hours
+# -----------------------------
+def avg_daily_hours(hours):
+    if not isinstance(hours, dict):
+        return None
+
+    total = 0
+    count = 0
+
+    for _, time_range in hours.items():
+        try:
+            open_t, close_t = time_range.split("-")
+            open_h = int(open_t.split(":")[0])
+            close_h = int(close_t.split(":")[0])
+
+            # Handle overnight hours (e.g. 18:00-02:00)
+            if close_h < open_h:
+                close_h += 24
+
+            total += max(close_h - open_h, 0)
+            count += 1
+        except:
+            continue
+
+    return total / count if count > 0 else None
+
+
+tucson_with_hours.loc[:, "avg_daily_hours"] = (
+    tucson_with_hours["hours"].apply(avg_daily_hours)
+)
+
+# -----------------------------
+# Results
+# -----------------------------
+top = (
+    tucson_with_hours[["name", "avg_daily_hours", "stars", "review_count"]]
+    .dropna()
+    .sort_values("avg_daily_hours", ascending=False)
+    .head(10)
+)
+
+print("\nTop Tucson Restaurants by Avg Daily Open Hours:\n")
+print(top)
+import json
+import pandas as pd
+
+# -----------------------------
+# Load Yelp business data
+# -----------------------------
+rows = []
+
+with open("data/yelp_academic_dataset_business.json", "r") as f:
+    for line in f:
+        rows.append(json.loads(line))
+
+df = pd.DataFrame(rows)
+
+print("Total businesses:", df.shape)
+
+# -----------------------------
+# Filter Tucson restaurants
+# -----------------------------
+tucson = df[df["city"] == "Tucson"]
+tucson_restaurants = tucson[
+    tucson["categories"].str.contains("Restaurant", case=False, na=False)
+]
+
+print("Tucson businesses:", tucson.shape)
+print("Tucson restaurants:", tucson_restaurants.shape)
+
+# -----------------------------
+# Keep only restaurants with hours
+# -----------------------------
+tucson_with_hours = tucson_restaurants[
+    tucson_restaurants["hours"].notna()
+].copy()
+
+print("Restaurants with hours:", tucson_with_hours.shape)
+
+# -----------------------------
+# Feature engineering
+# Average daily open hours
+# -----------------------------
+def avg_daily_hours(hours):
+    if not isinstance(hours, dict):
+        return None
+
+    total = 0
+    count = 0
+
+    for _, time_range in hours.items():
+        try:
+            open_t, close_t = time_range.split("-")
+            open_h = int(open_t.split(":")[0])
+            close_h = int(close_t.split(":")[0])
+
+            # Handle overnight hours (e.g. 18:00-02:00)
+            if close_h < open_h:
+                close_h += 24
+
+            total += max(close_h - open_h, 0)
+            count += 1
+        except:
+            continue
+
+    return total / count if count > 0 else None
+
+
+tucson_with_hours.loc[:, "avg_daily_hours"] = (
+    tucson_with_hours["hours"].apply(avg_daily_hours)
+)
+
+# -----------------------------
+# Results
+# -----------------------------
+top = (
+    tucson_with_hours[["name", "avg_daily_hours", "stars", "review_count"]]
+    .dropna()
+    .sort_values("avg_daily_hours", ascending=False)
+    .head(10)
+)
+
+print("\nTop Tucson Restaurants by Avg Daily Open Hours:\n")
+print(top)
+import json
+import pandas as pd
+
+# -----------------------------
+# Load Yelp business data
+# -----------------------------
+rows = []
+
+with open("data/yelp_academic_dataset_business.json", "r") as f:
+    for line in f:
+        rows.append(json.loads(line))
+
+df = pd.DataFrame(rows)
+
+print("Total businesses:", df.shape)
+
+# -----------------------------
+# Filter Tucson restaurants
+# -----------------------------
+tucson = df[df["city"] == "Tucson"]
+tucson_restaurants = tucson[
+    tucson["categories"].str.contains("Restaurant", case=False, na=False)
+]
+
+print("Tucson businesses:", tucson.shape)
+print("Tucson restaurants:", tucson_restaurants.shape)
+
+# -----------------------------
+# Keep only restaurants with hours
+# -----------------------------
+tucson_with_hours = tucson_restaurants[
+    tucson_restaurants["hours"].notna()
+].copy()
+
+print("Restaurants with hours:", tucson_with_hours.shape)
+
+# -----------------------------
+# Feature engineering
+# Average daily open hours
+# -----------------------------
+def avg_daily_hours(hours):
+    if not isinstance(hours, dict):
+        return None
+
+    total = 0
+    count = 0
+
+    for _, time_range in hours.items():
+        try:
+            open_t, close_t = time_range.split("-")
+            open_h = int(open_t.split(":")[0])
+            close_h = int(close_t.split(":")[0])
+
+            # Handle overnight hours (e.g. 18:00-02:00)
+            if close_h < open_h:
+                close_h += 24
+
+            total += max(close_h - open_h, 0)
+            count += 1
+        except:
+            continue
+
+    return total / count if count > 0 else None
+
+
+tucson_with_hours.loc[:, "avg_daily_hours"] = (
+    tucson_with_hours["hours"].apply(avg_daily_hours)
+)
+
+# -----------------------------
+# Results
+# -----------------------------
+top = (
+    tucson_with_hours[["name", "avg_daily_hours", "stars", "review_count"]]
+    .dropna()
+    .sort_values("avg_daily_hours", ascending=False)
+    .head(10)
+)
+
+print("\nTop Tucson Restaurants by Avg Daily Open Hours:\n")
+print(top)
+import json
+import pandas as pd
+
+# -----------------------------
+# Load Yelp business data
+# -----------------------------
+rows = []
+
+with open("data/yelp_academic_dataset_business.json", "r") as f:
+    for line in f:
+        rows.append(json.loads(line))
+
+df = pd.DataFrame(rows)
+
+print("Total businesses:", df.shape)
+
+# -----------------------------
+# Filter Tucson restaurants
+# -----------------------------
+tucson = df[df["city"] == "Tucson"]
+tucson_restaurants = tucson[
+    tucson["categories"].str.contains("Restaurant", case=False, na=False)
+]
+
+print("Tucson businesses:", tucson.shape)
+print("Tucson restaurants:", tucson_restaurants.shape)
+
+# -----------------------------
+# Keep only restaurants with hours
+# -----------------------------
+tucson_with_hours = tucson_restaurants[
+    tucson_restaurants["hours"].notna()
+].copy()
+
+print("Restaurants with hours:", tucson_with_hours.shape)
+
+# -----------------------------
+# Feature engineering
+# Average daily open hours
+# -----------------------------
+def avg_daily_hours(hours):
+    if not isinstance(hours, dict):
+        return None
+
+    total = 0
+    count = 0
+
+    for _, time_range in hours.items():
+        try:
+            open_t, close_t = time_range.split("-")
+            open_h = int(open_t.split(":")[0])
+            close_h = int(close_t.split(":")[0])
+
+            # Handle overnight hours (e.g. 18:00-02:00)
+            if close_h < open_h:
+                close_h += 24
+
+            total += max(close_h - open_h, 0)
+            count += 1
+        except:
+            continue
+
+    return total / count if count > 0 else None
+
+
+tucson_with_hours.loc[:, "avg_daily_hours"] = (
+    tucson_with_hours["hours"].apply(avg_daily_hours)
+)
+
+# -----------------------------
+# Results
+# -----------------------------
+top = (
+    tucson_with_hours[["name", "avg_daily_hours", "stars", "review_count"]]
+    .dropna()
+    .sort_values("avg_daily_hours", ascending=False)
+    .head(10)
+)
+
+print("\nTop Tucson Restaurants by Avg Daily Open Hours:\n")
+print(top)
+import json
+import pandas as pd
+
+# -----------------------------
+# Load Yelp business data
+# -----------------------------
+rows = []
+
+with open("data/yelp_academic_dataset_business.json", "r") as f:
+    for line in f:
+        rows.append(json.loads(line))
+
+df = pd.DataFrame(rows)
+
+print("Total businesses:", df.shape)
+
+# -----------------------------
+# Filter Tucson restaurants
+# -----------------------------
+tucson = df[df["city"] == "Tucson"]
+tucson_restaurants = tucson[
+    tucson["categories"].str.contains("Restaurant", case=False, na=False)
+]
+
+print("Tucson businesses:", tucson.shape)
+print("Tucson restaurants:", tucson_restaurants.shape)
+
+# -----------------------------
+# Keep only restaurants with hours
+# -----------------------------
+tucson_with_hours = tucson_restaurants[
+    tucson_restaurants["hours"].notna()
+].copy()
+
+print("Restaurants with hours:", tucson_with_hours.shape)
+
+# -----------------------------
+# Feature engineering
+# Average daily open hours
+# -----------------------------
+def avg_daily_hours(hours):
+    if not isinstance(hours, dict):
+        return None
+
+    total = 0
+    count = 0
+
+    for _, time_range in hours.items():
+        try:
+            open_t, close_t = time_range.split("-")
+            open_h = int(open_t.split(":")[0])
+            close_h = int(close_t.split(":")[0])
+
+            # Handle overnight hours (e.g. 18:00-02:00)
+            if close_h < open_h:
+                close_h += 24
+
+            total += max(close_h - open_h, 0)
+            count += 1
+        except:
+            continue
+
+    return total / count if count > 0 else None
+
+
+tucson_with_hours.loc[:, "avg_daily_hours"] = (
+    tucson_with_hours["hours"].apply(avg_daily_hours)
+)
+
+# -----------------------------
+# Results
+# -----------------------------
+top = (
+    tucson_with_hours[["name", "avg_daily_hours", "stars", "review_count"]]
+    .dropna()
+    .sort_values("avg_daily_hours", ascending=False)
+    .head(10)
+)
+
+print("\nTop Tucson Restaurants by Avg Daily Open Hours:\n")
+print(top)
+import json
+import pandas as pd
+
+# -----------------------------
+# Load Yelp business data
+# -----------------------------
+rows = []
+
+with open("data/yelp_academic_dataset_business.json", "r") as f:
+    for line in f:
+        rows.append(json.loads(line))
+
+df = pd.DataFrame(rows)
+
+print("Total businesses:", df.shape)
+
+# -----------------------------
+# Filter Tucson restaurants
+# -----------------------------
+tucson = df[df["city"] == "Tucson"]
+tucson_restaurants = tucson[
+    tucson["categories"].str.contains("Restaurant", case=False, na=False)
+]
+
+print("Tucson businesses:", tucson.shape)
+print("Tucson restaurants:", tucson_restaurants.shape)
+
+# -----------------------------
+# Keep only restaurants with hours
+# -----------------------------
+tucson_with_hours = tucson_restaurants[
+    tucson_restaurants["hours"].notna()
+].copy()
+
+print("Restaurants with hours:", tucson_with_hours.shape)
+
+# -----------------------------
+# Feature engineering
+# Average daily open hours
+# -----------------------------
+def avg_daily_hours(hours):
+    if not isinstance(hours, dict):
+        return None
+
+    total = 0
+    count = 0
+
+    for _, time_range in hours.items():
+        try:
+            open_t, close_t = time_range.split("-")
+            open_h = int(open_t.split(":")[0])
+            close_h = int(close_t.split(":")[0])
+
+            # Handle overnight hours (e.g. 18:00-02:00)
+            if close_h < open_h:
+                close_h += 24
+
+            total += max(close_h - open_h, 0)
+            count += 1
+        except:
+            continue
+
+    return total / count if count > 0 else None
+
+
+tucson_with_hours.loc[:, "avg_daily_hours"] = (
+    tucson_with_hours["hours"].apply(avg_daily_hours)
+)
+
+# -----------------------------
+# Results
+# -----------------------------
+top = (
+    tucson_with_hours[["name", "avg_daily_hours", "stars", "review_count"]]
+    .dropna()
+    .sort_values("avg_daily_hours", ascending=False)
+    .head(10)
+)
+
+print("\nTop Tucson Restaurants by Avg Daily Open Hours:\n")
+print(top)
+import json
+import pandas as pd
+
+# -----------------------------
+# Load Yelp business data
+# -----------------------------
+rows = []
+
+with open("data/yelp_academic_dataset_business.json", "r") as f:
+    for line in f:
+        rows.append(json.loads(line))
+
+df = pd.DataFrame(rows)
+
+print("Total businesses:", df.shape)
+
+# -----------------------------
+# Filter Tucson restaurants
+# -----------------------------
+tucson = df[df["city"] == "Tucson"]
+tucson_restaurants = tucson[
+    tucson["categories"].str.contains("Restaurant", case=False, na=False)
+]
+
+print("Tucson businesses:", tucson.shape)
+print("Tucson restaurants:", tucson_restaurants.shape)
+
+# -----------------------------
+# Keep only restaurants with hours
+# -----------------------------
+tucson_with_hours = tucson_restaurants[
+    tucson_restaurants["hours"].notna()
+].copy()
+
+print("Restaurants with hours:", tucson_with_hours.shape)
+
+# -----------------------------
+# Feature engineering
+# Average daily open hours
+# -----------------------------
+def avg_daily_hours(hours):
+    if not isinstance(hours, dict):
+        return None
+
+    total = 0
+    count = 0
+
+    for _, time_range in hours.items():
+        try:
+            open_t, close_t = time_range.split("-")
+            open_h = int(open_t.split(":")[0])
+            close_h = int(close_t.split(":")[0])
+
+            # Handle overnight hours (e.g. 18:00-02:00)
+            if close_h < open_h:
+                close_h += 24
+
+            total += max(close_h - open_h, 0)
+            count += 1
+        except:
+            continue
+
+    return total / count if count > 0 else None
+
+
+tucson_with_hours.loc[:, "avg_daily_hours"] = (
+    tucson_with_hours["hours"].apply(avg_daily_hours)
+)
+
+# -----------------------------
+# Results
+# -----------------------------
+top = (
+    tucson_with_hours[["name", "avg_daily_hours", "stars", "review_count"]]
+    .dropna()
+    .sort_values("avg_daily_hours", ascending=False)
+    .head(10)
+)
+
+print("\nTop Tucson Restaurants by Avg Daily Open Hours:\n")
+print(top)
+import json
+import pandas as pd
+
+# -----------------------------
+# Load Yelp business data
+# -----------------------------
+rows = []
+
+with open("data/yelp_academic_dataset_business.json", "r") as f:
+    for line in f:
+        rows.append(json.loads(line))
+
+df = pd.DataFrame(rows)
+
+print("Total businesses:", df.shape)
+
+# -----------------------------
+# Filter Tucson restaurants
+# -----------------------------
+tucson = df[df["city"] == "Tucson"]
+tucson_restaurants = tucson[
+    tucson["categories"].str.contains("Restaurant", case=False, na=False)
+]
+
+print("Tucson businesses:", tucson.shape)
+print("Tucson restaurants:", tucson_restaurants.shape)
+
+# -----------------------------
+# Keep only restaurants with hours
+# -----------------------------
+tucson_with_hours = tucson_restaurants[
+    tucson_restaurants["hours"].notna()
+].copy()
+
+print("Restaurants with hours:", tucson_with_hours.shape)
+
+# -----------------------------
+# Feature engineering
+# Average daily open hours
+# -----------------------------
+def avg_daily_hours(hours):
+    if not isinstance(hours, dict):
+        return None
+
+    total = 0
+    count = 0
+
+    for _, time_range in hours.items():
+        try:
+            open_t, close_t = time_range.split("-")
+            open_h = int(open_t.split(":")[0])
+            close_h = int(close_t.split(":")[0])
+
+            # Handle overnight hours (e.g. 18:00-02:00)
+            if close_h < open_h:
+                close_h += 24
+
+            total += max(close_h - open_h, 0)
+            count += 1
+        except:
+            continue
+
+    return total / count if count > 0 else None
+
+
+tucson_with_hours.loc[:, "avg_daily_hours"] = (
+    tucson_with_hours["hours"].apply(avg_daily_hours)
+)
+
+# -----------------------------
+# Results
+# -----------------------------
+top = (
+    tucson_with_hours[["name", "avg_daily_hours", "stars", "review_count"]]
+    .dropna()
+    .sort_values("avg_daily_hours", ascending=False)
+    .head(10)
+)
+
+print("\nTop Tucson Restaurants by Avg Daily Open Hours:\n")
+print(top)
+import json
+import pandas as pd
+
+# -----------------------------
+# Load Yelp business data
+# -----------------------------
+rows = []
+
+with open("data/yelp_academic_dataset_business.json", "r") as f:
+    for line in f:
+        rows.append(json.loads(line))
+
+df = pd.DataFrame(rows)
+
+print("Total businesses:", df.shape)
+
+# -----------------------------
+# Filter Tucson restaurants
+# -----------------------------
+tucson = df[df["city"] == "Tucson"]
+tucson_restaurants = tucson[
+    tucson["categories"].str.contains("Restaurant", case=False, na=False)
+]
+
+print("Tucson businesses:", tucson.shape)
+print("Tucson restaurants:", tucson_restaurants.shape)
+
+# -----------------------------
+# Keep only restaurants with hours
+# -----------------------------
+tucson_with_hours = tucson_restaurants[
+    tucson_restaurants["hours"].notna()
+].copy()
+
+print("Restaurants with hours:", tucson_with_hours.shape)
+
+# -----------------------------
+# Feature engineering
+# Average daily open hours
+# -----------------------------
+def avg_daily_hours(hours):
+    if not isinstance(hours, dict):
+        return None
+
+    total = 0
+    count = 0
+
+    for _, time_range in hours.items():
+        try:
+            open_t, close_t = time_range.split("-")
+            open_h = int(open_t.split(":")[0])
+            close_h = int(close_t.split(":")[0])
+
+            # Handle overnight hours (e.g. 18:00-02:00)
+            if close_h < open_h:
+                close_h += 24
+
+            total += max(close_h - open_h, 0)
+            count += 1
+        except:
+            continue
+
+    return total / count if count > 0 else None
+
+
+tucson_with_hours.loc[:, "avg_daily_hours"] = (
+    tucson_with_hours["hours"].apply(avg_daily_hours)
+)
+
+# -----------------------------
+# Results
+# -----------------------------
+top = (
+    tucson_with_hours[["name", "avg_daily_hours", "stars", "review_count"]]
+    .dropna()
+    .sort_values("avg_daily_hours", ascending=False)
+    .head(10)
+)
+
+print("\nTop Tucson Restaurants by Avg Daily Open Hours:\n")
+print(top)
+# Tucson Restaurant Popularity ML Model
+# ------------------------------------
+# Goal: Predict whether a Tucson restaurant is "popular"
+# Popular = above-median review count
+
+import json
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, classification_report
+from scipy.sparse import hstack
+
+# -----------------------------
+# 1. Load Yelp business data
+# -----------------------------
+rows = []
+with open("data/yelp_academic_dataset_business.json", "r") as f:
+    for line in f:
+        rows.append(json.loads(line))
+
+df = pd.DataFrame(rows)
+
+# -----------------------------
+# 2. Filter Tucson restaurants
+# -----------------------------
+tucson = df[df["city"] == "Tucson"]
+tucson_restaurants = tucson[
+    tucson["categories"].str.contains("Restaurant", case=False, na=False)
+].copy()
+
+print("Tucson restaurants:", tucson_restaurants.shape[0])
+
+# -----------------------------
+# 3. Create label (popular)
+# -----------------------------
+median_reviews = tucson_restaurants["review_count"].median()
+tucson_restaurants["popular"] = (
+    tucson_restaurants["review_count"] > median_reviews
+).astype(int)
+
+# -----------------------------
+# 4. Select features
+# -----------------------------
+X_text = tucson_restaurants["categories"].fillna("")
+X_numeric = tucson_restaurants[["stars"]]
+y = tucson_restaurants["popular"]
+
+# -----------------------------
+# 5. Vectorize text (TF-IDF)
+# -----------------------------
+tfidf = TfidfVectorizer(
+    max_features=500,
+    stop_words="english"
+)
+
+X_text_vec = tfidf.fit_transform(X_text)
+
+# Combine text + numeric features
+X = hstack([X_text_vec, X_numeric.values])
+
+# -----------------------------
+# 6. Train/test split
+# -----------------------------
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+# -----------------------------
+# 7. Train model
+# -----------------------------
+model = LogisticRegression(max_iter=1000)
+model.fit(X_train, y_train)
+
+# -----------------------------
+# 8. Evaluate model
+# ------------------------
