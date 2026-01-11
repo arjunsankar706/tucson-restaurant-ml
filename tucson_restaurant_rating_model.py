@@ -1,6 +1,10 @@
 import json
 import pandas as pd
 
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_absolute_error, r2_score
+
 # ==============================
 # Load Yelp business data
 # ==============================
@@ -15,8 +19,7 @@ print("Total businesses:", df.shape)
 # ==============================
 # Filter Tucson restaurants
 # ==============================
-city = "Tucson"
-tucson = df[df["city"] == city]
+tucson = df[df["city"] == "Tucson"]
 
 tucson_restaurants = tucson[
     tucson["categories"].str.contains("Restaurant", case=False, na=False)
@@ -27,7 +30,10 @@ print("Tucson restaurants:", tucson_restaurants.shape)
 # ==============================
 # Keep restaurants with hours
 # ==============================
-tucson_with_hours = tucson_restaurants[tucson_restaurants["hours"].notna()].copy()
+tucson_with_hours = tucson_restaurants[
+    tucson_restaurants["hours"].notna()
+].copy()
+
 print("Restaurants with hours:", tucson_with_hours.shape)
 
 # ==============================
@@ -61,17 +67,62 @@ tucson_with_hours["avg_daily_hours"] = (
 )
 
 # ==============================
-# Show results
+# Prepare ML dataset
 # ==============================
-result = (
-    tucson_with_hours[["name", "stars", "review_count", "avg_daily_hours"]]
-    .dropna()
-    .sort_values("avg_daily_hours", ascending=False)
-    .head(10)
+features = ["review_count", "is_open", "avg_daily_hours"]
+target = "stars"
+
+ml_df = tucson_with_hours[features + [target, "name"]].dropna()
+
+X = ml_df[features]
+y = ml_df[target]
+
+print("Final ML dataset size:", X.shape)
+
+# ==============================
+# Train / Test Split
+# ==============================
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
 )
 
-print("\nTop Tucson restaurants by average daily open hours:")
-print(result)
+# ==============================
+# Train Model
+# ==============================
+model = RandomForestRegressor(
+    n_estimators=200,
+    random_state=42
+)
+
+model.fit(X_train, y_train)
+
+# ==============================
+# Evaluate Model
+# ==============================
+y_pred = model.predict(X_test)
+
+mae = mean_absolute_error(y_test, y_pred)
+r2 = r2_score(y_test, y_pred)
+
+print("\nMODEL PERFORMANCE")
+print("-----------------")
+print(f"Mean Absolute Error: {mae:.3f}")
+print(f"R² Score: {r2:.3f}")
+
+# ==============================
+# Predict for all restaurants
+# ==============================
+ml_df["predicted_stars"] = model.predict(X)
+
+top_predictions = (
+    ml_df.sort_values("predicted_stars", ascending=False)
+    .head(10)[
+        ["name", "predicted_stars", "stars", "review_count", "avg_daily_hours"]
+    ]
+)
+
+print("\nTOP PREDICTED TUCSON RESTAURANTS")
+print("--------------------------------")
+print(top_predictions.to_string(index=False))
 
 print("\nDONE ✅")
-
